@@ -30,9 +30,17 @@ func (g *Goterface) Map() (map[string]interface{}, error) {
 	return nil, errors.New("type assertion to map[string]interface{} failed")
 }
 
-func (g *Goterface) Array() ([]interface{}, error) {
-	if a, ok := (g.data).([]interface{}); ok {
-		return a, nil
+func (g *Goterface) Array() ([]*Goterface, error) {
+	if arr, ok := (g.data).([]interface{}); ok {
+		retArr := make([]*Goterface, 0, len(arr))
+		for _, a := range arr {
+			if a == nil {
+				continue
+			}
+			s := &Goterface{a}
+			retArr = append(retArr, s)
+		}
+		return retArr, nil
 	}
 	return nil, errors.New("type assertion to []interface{} failed")
 }
@@ -105,8 +113,8 @@ func (g *Goterface) StringArray() ([]string, error) {
 			retArr = append(retArr, "")
 			continue
 		}
-		s, ok := a.(string)
-		if !ok {
+		s, ok := a.String()
+		if ok != nil {
 			return nil, errors.New("type assertion to []string failed")
 		}
 		retArr = append(retArr, s)
